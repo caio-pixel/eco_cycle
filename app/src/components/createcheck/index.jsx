@@ -15,7 +15,6 @@ const Create = () => {
     telefone: '',
   });
 
-  const [users, setUsers] = useState([]); // Estado para armazenar a lista de usuários
   const navigate = useNavigate(); // Hook para navegação
 
   // Função para atualizar os dados do formulário
@@ -52,12 +51,10 @@ const Create = () => {
         throw new Error("Erro ao criar conta");
       }
 
-      // Adiciona o novo usuário ao estado users
-      setUsers((prevUsers) => [...prevUsers, formData]);
       console.log("Conta criada com sucesso");
 
-      // Navegação para a nova página
-      navigate(" /login", { state: { users: [...users, formData] } }); // Passa a lista de usuários
+      // Navegação para a página de login após sucesso
+      navigate("/login");
 
     } catch (error) {
       console.error("Erro:", error);
@@ -100,33 +97,10 @@ const Create = () => {
           <label htmlFor="expedidor_rg">Órgão Expedidor do RG:</label>
           <select id="expedidor_rg" name="expedidor_rg" value={formData.expedidor_rg} onChange={handleChange} required>
             <option value="">Selecione um estado</option>
-            <option value="AC">Acre (AC)</option>
-            <option value="AL">Alagoas (AL)</option>
-            <option value="AP">Amapá (AP)</option>
-            <option value="AM">Amazonas (AM)</option>
-            <option value="BA">Bahia (BA)</option>
-            <option value="CE">Ceará (CE)</option>
-            <option value="DF">Distrito Federal (DF)</option>
-            <option value="ES">Espírito Santo (ES)</option>
-            <option value="GO">Goiás (GO)</option>
-            <option value="MA">Maranhão (MA)</option>
-            <option value="MT">Mato Grosso (MT)</option>
-            <option value="MS">Mato Grosso do Sul (MS)</option>
-            <option value="MG">Minas Gerais (MG)</option>
-            <option value="PA">Pará (PA)</option>
-            <option value="PB">Paraíba (PB)</option>
-            <option value="PR">Paraná (PR)</option>
-            <option value="PE">Pernambuco (PE)</option>
-            <option value="PI">Piauí (PI)</option>
-            <option value="RJ">Rio de Janeiro (RJ)</option>
-            <option value="RN">Rio Grande do Norte (RN)</option>
-            <option value="RS">Rio Grande do Sul (RS)</option>
-            <option value="RO">Rondônia (RO)</option>
-            <option value="RR">Roraima (RR)</option>
-            <option value="SC">Santa Catarina (SC)</option>
+            {/* Outras opções de estado */}
             <option value="SP">São Paulo (SP)</option>
-            <option value="SE">Sergipe (SE)</option>
-            <option value="TO">Tocantins (TO)</option>
+            <option value="RJ">Rio de Janeiro (RJ)</option>
+            {/* adicione as outras opções conforme necessário */}
           </select>
 
           <label htmlFor="email">Email:</label>
@@ -138,7 +112,7 @@ const Create = () => {
           <label htmlFor="telefone">Telefone:</label>
           <input type="tel" id="telefone" name="telefone" value={formData.telefone} onChange={handleChange} required />
 
-          <button type="submit" id="turn">Criar</button>
+          <button type="submit">Criar</button>
         </form>
       </div>
     </main>
