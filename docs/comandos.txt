@@ -1,0 +1,10 @@
+- ao atualizar o model:
+npx prisma db push
+npx prisma generate
+
+- para verificar se os dados foram atualizados:
+NO BACKEND:
+  npx prisma studio
+
+- para ligar o backend:
+npm run dev
