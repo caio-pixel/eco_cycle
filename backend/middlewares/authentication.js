@@ -1,28 +1,43 @@
+const express = require('express');
 const jwt = require('jsonwebtoken');
-const createError = require('http-errors');
+const bcrypt = require('bcryptjs');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const router = express.Router();
 
-// middleware to check if the user is authenticated
-const authentication = (req, res, next) => {
-	// get the token from the Authorization header
-	const token = req.headers.authorization?.split(' ')[1];
+// POST login
+router.post('/login', async (req, res, next) => {
+  const { email, senha } = req.body;
 
-	// check if the token is provided
-	if (!token) {
-		return next(createError(401, 'Token not provided'));
-	}
+  try {
+    // Verificar se o usuário existe
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-	try {
-		// check if the token is invalid
-		const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    if (!user) {
+      return res.status(400).json({ error: 'Email ou senha incorretos.' });
+    }
 
-		// set the user data in the request object
-		req.user = decoded;
+    // Comparar a senha
+    const isPasswordValid = await bcrypt.compare(senha, user.senha);
 
-		return next();
-	} catch (err) {
-		// return an error if the token is invalid
-		return next(createError(401, 'Invalid token'));
-	}
-};
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Email ou senha incorretos.' });
+    }
 
-module.exports = authentication;
+    // Gerar o token JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Enviar o token no response
+    res.json({ token });
+  } catch (error) {
+    next(error);
+  }
+});
+
+module.exports = router;

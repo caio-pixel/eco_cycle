@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";  // Para redirecionar após login
 import "./entrar.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate(); // Hook para navegação
 
   useEffect(() => {
     // Carrega o email e a senha do localStorage
@@ -18,34 +20,42 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log("Dados de login antes de enviar:", { email, password });
+  
     try {
-      const response = await fetch("http://localhost:3002/login", {
+      const response = await fetch("http://localhost:3002/api/authentication/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password }),  // Certifique-se de que a chave seja 'password'
       });
-
+      
+      // Verificação de resposta
       if (!response.ok) {
         throw new Error("Erro ao fazer login");
       }
       
       const data = await response.json();
-      
-      // Armazena o email, a senha e o token no localStorage
-      localStorage.setItem("email", email.token);
-      localStorage.setItem("senha", password.token);
-      localStorage.setItem("token", data);  // Salva o token
-      
-      // Aqui você pode lidar com a resposta de sucesso (por exemplo, redirecionar o usuário)
+  
+      console.log("Resposta do servidor:", data);  // Verifique a resposta que está sendo retornada
+  
+      // Armazenando os dados no localStorage
+      localStorage.setItem("email", email);
+      localStorage.setItem("senha", password);
+      localStorage.setItem("token", data.token);  // Salva o token
+  
+      // Navega para a página de conta
+      navigate("/account", { state: { email, password } });
+  
       console.log("Login bem-sucedido:", data);
-      
+    
     } catch (error) {
       setError(error.message);
       console.error("Erro ao fazer login:", error);
     }
   };
+  
 
   return (
     <div className="login-container">
