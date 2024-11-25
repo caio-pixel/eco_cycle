@@ -10,7 +10,7 @@ var app = express();
 // Importação das rotas
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var authenticationRouter = require('./routes/authentication'); // Corrigido de 'autenticationRouter' para 'authenticationRouter'
+var authenticationRouter = require('./routes/authentication'); 
 
 // Middleware
 app.use(cors());
@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Rotas
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
-app.use('/api/authentication', authenticationRouter);  // Corrigido de 'autenticationRouter' para 'authenticationRouter'
+app.use('/api/authentication', authenticationRouter);  
 
 // Middleware de erro padrão
 app.use((err, req, res, next) => {

@@ -9,41 +9,36 @@ const Account = () => {
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [nome, setNome] = useState("");  // Variável de estado para armazenar o nome do usuário
+  const [nome, setNome] = useState("");
 
   useEffect(() => {
-    // Recupera o email, senha e nome do localStorage
     const storedEmail = localStorage.getItem("email");
     const storedPassword = localStorage.getItem("senha");
-    const storedNome = localStorage.getItem("nome");  // Nome do usuário
+    const storedNome = localStorage.getItem("nome");
 
-    // Se não houver email ou senha, redireciona para o login
     if (!storedEmail || !storedPassword) {
       setError("Usuário não autenticado");
-      navigate("/login"); // Redireciona para login se não houver email ou senha
+      navigate("/login");
       return;
     }
 
     setEmail(storedEmail);
-    setNome(storedNome);  // Define o nome do usuário
-    setPassword(storedPassword);  // Armazena a senha para possíveis verificações (não exiba no frontend)
+    setNome(storedNome);
+    setPassword(storedPassword);
 
-    // Obtém o token do localStorage
     const token = localStorage.getItem("token");
-
     if (!token) {
       setError("Usuário não autenticado");
-      navigate("/login"); // Redireciona para login se não tiver token
+      navigate("/login");
       return;
     }
 
-    // Busca o saldo do usuário usando o token
     const fetchUserData = async () => {
       try {
         const response = await fetch("http://localhost:3002/api/users", {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`, // Passa o token JWT no cabeçalho
+            "Authorization": `Bearer ${token}`,
           },
         });
 
@@ -52,8 +47,7 @@ const Account = () => {
         }
 
         const data = await response.json();
-        setBalance(data.balance || "R$ 100.000,00"); // Exemplo de saldo
-
+        setBalance(data.balance || "R$ 1.000,00");
       } catch (error) {
         setError("Erro ao buscar informações da conta.");
       }
@@ -66,6 +60,36 @@ const Account = () => {
     setShowBalance((prev) => !prev);
   };
 
+  // Função para deletar a conta
+  const handleDeleteAccount = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("http://localhost:3002/api/users", {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao deletar conta");
+      }
+
+      // Remover os dados do localStorage
+      localStorage.removeItem("email");
+      localStorage.removeItem("senha");
+      localStorage.removeItem("nome");
+      localStorage.removeItem("token");
+
+      
+      navigate("/"); // Redirecionar para a página que queremos
+    } catch (error) {
+      alert("Erro ao deletar conta: " + error.message);
+    }
+  };
+
   return (
     <main className="account-container">
       <div className="account-header">
@@ -74,25 +98,17 @@ const Account = () => {
           <p>{error}</p>
         ) : (
           <div className="account-info">
-            <h2>Bem-vindo, {nome}</h2> {/* Exibe o nome do usuário */}
+            <h2>Bem-vindo, {nome}</h2>
             <div className="account-balance">
               <h3>Saldo Disponível:</h3>
-              <p className="balance-amount">
-                {showBalance ? balance : '****'}
-              </p>
+              <p className="balance-amount">{showBalance ? balance : "****"}</p>
               <button onClick={toggleBalance} className="toggle-button">
-                {showBalance ? 'Esconder Saldo' : 'Mostrar Saldo'}
+                {showBalance ? "Esconder Saldo" : "Mostrar Saldo"}
               </button>
             </div>
             <div className="pix-info">
               <h3>Pix</h3>
-              <p>Chave Pix: {email}</p> {/* A chave Pix é o email */}
-            </div>
-            {/* Adicionando informações sensíveis (sem exibir senha) */}
-            <div className="account-credentials">
-              <h3>Credenciais</h3>
-              <p>Email: {email}</p>
-              <p>Senha: *****</p> {/* Não exiba a senha, apenas sinalize que é "****" */}
+              <p>Chave Pix: {email}</p>
             </div>
           </div>
         )}
@@ -106,16 +122,9 @@ const Account = () => {
           <button className="action-button">Transferir</button>
           <button className="action-button">Pagar Conta</button>
         </div>
-      </div>
-
-      {/* Aba Lateral com Botões */}
-      <div className="side-panel">
-        <h3>Mais Ações</h3>
-        <div className="side-info">
-          <button className="side-button">Ver Perfil</button>
-          <button className="side-button">Configurações</button>
-          <button className="side-button">Ajuda</button>
-        </div>
+        <button onClick={handleDeleteAccount} className="delete-account-button">
+          Deletar Conta
+        </button>
       </div>
     </main>
   );

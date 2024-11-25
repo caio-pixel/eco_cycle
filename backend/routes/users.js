@@ -90,7 +90,7 @@ router.post('/login', async (req, res, next) => {
     }
 
     // Comparar a senha
-    const isPasswordValid = await bcrypt.compare(senha, user.senha);
+    const isPasswordfValid = await bcrypt.compare(senha, user.senha);
 
     if (!isPasswordValid) {
       return res.status(400).json({ error: 'Email ou senha incorretos.' });
@@ -107,6 +107,37 @@ router.post('/login', async (req, res, next) => {
     res.json({ token });
   } catch (error) {
     next(error);
+  }
+});
+const jwt = require('jsonwebtoken');
+
+// DELETE delete user
+router.delete('/', async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ error: "Usuário não autenticado." });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const userId = decoded.userId;
+
+    console.log(decoded)
+    console.log("User ID:", userId);  // Adicione esse log para verificar o valor de 'userId'
+
+    if (!userId) {
+      return res.status(400).json("User ID is required");
+    }
+
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    res.status(200).json({ message: "Conta deletada com sucesso." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro ao deletar conta." });
   }
 });
 

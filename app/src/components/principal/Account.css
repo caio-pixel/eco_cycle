@@ -137,3 +137,32 @@ h3 {
 .side-button:hover {
   background-color: #3700b3; /* Cor ao passar o mouse */
 }
+
+.delete-button {
+  background-color: #ff4d4f; /* Vermelho chamativo */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.delete-button:hover {
+  background-color: #d9363e; /* Vermelho escuro ao passar o mouse */
+}
+.delete-account-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  color: white;
+  background-color: red;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-account-button:hover {
+  background-color: darkred;
+}

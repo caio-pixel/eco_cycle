@@ -43,7 +43,9 @@ const Login = () => {
       // Armazenando os dados no localStorage
       localStorage.setItem("email", email);
       localStorage.setItem("senha", password);
-      localStorage.setItem("token", data.token);  // Salva o token
+      localStorage.setItem("token", data.token);  
+      localStorage.setItem("nome", data.nome);
+      // Salva o token
   
       // Navega para a página de conta
       navigate("/account", { state: { email, password } });
