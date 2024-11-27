@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Account.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Account.css";
 
 const Account = () => {
   const navigate = useNavigate();
@@ -10,6 +10,10 @@ const Account = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [newNome, setNewNome] = useState("");
+  const [newSenha, setNewSenha] = useState("");
+  const [showActions, setShowActions] = useState(false); // Estado para controlar as ações
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
@@ -38,7 +42,7 @@ const Account = () => {
         const response = await fetch("http://localhost:3002/api/users", {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -60,7 +64,6 @@ const Account = () => {
     setShowBalance((prev) => !prev);
   };
 
-  // Função para deletar a conta
   const handleDeleteAccount = async () => {
     const token = localStorage.getItem("token");
 
@@ -68,7 +71,7 @@ const Account = () => {
       const response = await fetch("http://localhost:3002/api/users", {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
@@ -77,31 +80,71 @@ const Account = () => {
         throw new Error("Erro ao deletar conta");
       }
 
-      // Remover os dados do localStorage
       localStorage.removeItem("email");
       localStorage.removeItem("senha");
       localStorage.removeItem("nome");
       localStorage.removeItem("token");
 
-      
-      navigate("/"); // Redirecionar para a página que queremos
+      navigate("/");
     } catch (error) {
       alert("Erro ao deletar conta: " + error.message);
     }
   };
 
+  const handleEditAccount = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("http://localhost:3002/api/users", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome: newNome || nome,
+          senha: newSenha || password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar informações.");
+      }
+
+      const updatedUser = await response.json();
+      setNome(updatedUser.nome);
+      setPassword(newSenha || password);
+      setShowEditModal(false);
+
+      alert("Informações atualizadas com sucesso!");
+    } catch (error) {
+      alert("Erro ao atualizar informações: " + error.message);
+    }
+  };
+
+  const toggleActions = () => {
+    setShowActions((prev) => !prev); // Alterna a visibilidade das ações
+  };
+
   return (
     <main className="account-container">
       <div className="account-header">
-        <h1>Conta do Usuário</h1>
+        <div className="topImage">
+          <h2>Bem-vindo, {nome}!</h2>
+          <button className="show-actions-btn" onClick={toggleActions}>
+            =
+          </button>
+        </div>
+
         {error ? (
           <p>{error}</p>
         ) : (
           <div className="account-info">
-            <h2>Bem-vindo, {nome}</h2>
             <div className="account-balance">
               <h3>Saldo Disponível:</h3>
-              <p className="balance-amount">{showBalance ? balance : "****"}</p>
+              <p className="balance-amount">
+                {showBalance ? balance : "******"}
+              </p>
               <button onClick={toggleBalance} className="toggle-button">
                 {showBalance ? "Esconder Saldo" : "Mostrar Saldo"}
               </button>
@@ -114,7 +157,8 @@ const Account = () => {
         )}
       </div>
 
-      <div className="action-buttons-container">
+      {/* Menu lateral com ações */}
+      <div className={`action-buttons-container ${showActions ? "show" : ""}`}>
         <h3>Ações</h3>
         <div className="action-buttons">
           <button className="action-button">Ver Extrato</button>
@@ -125,7 +169,38 @@ const Account = () => {
         <button onClick={handleDeleteAccount} className="delete-account-button">
           Deletar Conta
         </button>
+        <button onClick={() => setShowEditModal(true)} className="edit-account-button">
+          Editar Informações
+        </button>
       </div>
+
+      {showEditModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Editar Informações</h3>
+            <label>
+              Novo Nome:
+              <input
+                type="text"
+                value={newNome}
+                onChange={(e) => setNewNome(e.target.value)}
+              />
+            </label>
+            <label>
+              Nova Senha:
+              <input
+                type="password"
+                value={newSenha}
+                onChange={(e) => setNewSenha(e.target.value)}
+              />
+            </label>
+            <div className="modal-actions">
+              <button onClick={handleEditAccount}>Salvar</button>
+              <button onClick={() => setShowEditModal(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
