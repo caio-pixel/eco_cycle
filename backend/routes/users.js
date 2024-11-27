@@ -185,5 +185,6 @@ router.put("/", async (req, res) => {
   }
 });
 
+  console.log('teste para comitar');
 
 module.exports = router;
